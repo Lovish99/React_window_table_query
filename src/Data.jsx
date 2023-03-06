@@ -84,14 +84,7 @@ function Table({ columns, data }) {
 
   // Render the UI for your table
   return (
-    <table
-      {...getTableProps()}
-      style={{
-        display: "inline-block",
-        border: "solid 1px black",
-        borderSpacing: "0",
-      }}
-    >
+    <table {...getTableProps()}>
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr
