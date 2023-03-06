@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useTable, useBlockLayout } from "react-table";
 import { FixedSizeList } from "react-window";
 import scrollbarWidth from "./Scrollbarwidth";
+import { useQuery } from "react-query";
+import Axios from "axios";
 
 import makeData from "./MakeData";
 
@@ -19,33 +21,6 @@ const SearchRow = (e) => {
 
 const Styles = styled.div`
   padding: 1rem;
-
-  .table {
-    width: 60%;
-    display: inline-block;
-    border-spacing: 0;
-    border: 1px solid black;
-
-    .tr {
-      :last-child {
-        .td {
-          border-bottom: 0;
-        }
-      }
-    }
-
-    .th,
-    .td {
-      margin: 0;
-      padding: 0.5rem;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
-
-      :last-child {
-        border-right: 1px solid black;
-      }
-    }
-  }
 `;
 
 function Table({ columns, data }) {
@@ -81,20 +56,27 @@ function Table({ columns, data }) {
       const row = rows[index];
       prepareRow(row);
       return (
-        <div
+        <tr
           {...row.getRowProps({
             style,
           })}
-          className="tr"
         >
           {row.cells.map((cell) => {
             return (
-              <div {...cell.getCellProps()} className="td">
+              <td
+                style={{
+                  margin: "0",
+                  padding: "0.5rem",
+                  borderBottom: "1px solid black",
+                  borderRight: "1px solid black",
+                }}
+                {...cell.getCellProps()}
+              >
                 {cell.render("Cell")}
-              </div>
+              </td>
             );
           })}
-        </div>
+        </tr>
       );
     },
     [prepareRow, rows]
@@ -102,35 +84,63 @@ function Table({ columns, data }) {
 
   // Render the UI for your table
   return (
-    <div {...getTableProps()} className="table">
-      <div>
+    <table
+      {...getTableProps()}
+      style={{
+        display: "inline-block",
+        border: "solid 1px black",
+        borderSpacing: "0",
+      }}
+    >
+      <thead>
         {headerGroups.map((headerGroup) => (
-          <div {...headerGroup.getHeaderGroupProps()} className="tr">
+          <tr
+            style={{ border: "solid 1px black" }}
+            {...headerGroup.getHeaderGroupProps()}
+          >
             {headerGroup.headers.map((column) => (
-              <div {...column.getHeaderProps()} className="th">
+              <th
+                {...column.getHeaderProps()}
+                style={{
+                  border: "solid 1px black",
+                  margin: "0",
+                  padding: "0.5rem",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 {column.render("Header")}
-              </div>
+              </th>
             ))}
-          </div>
+          </tr>
         ))}
-      </div>
+      </thead>
 
-      <div {...getTableBodyProps()}>
+      <tbody {...getTableBodyProps()}>
         <FixedSizeList
           height={400}
           itemCount={rows.length}
           itemSize={35}
           width={totalColumnsWidth + scrollBarSize}
           ref={listRef}
+          style={{
+            border: "solid 1px black",
+          }}
         >
           {RenderRow}
         </FixedSizeList>
-      </div>
-    </div>
+      </tbody>
+    </table>
   );
 }
 
 function App(props) {
+  const { data: any } = useQuery(["cat"], () => {
+    return Axios.get("").then((res) => res.data);
+  });
+
   const columns = React.useMemo(() => [
     {
       Header: "Row Index",
